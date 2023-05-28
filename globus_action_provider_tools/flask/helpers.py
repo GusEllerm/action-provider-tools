@@ -201,3 +201,35 @@ def pydantic_input_validation(
         validator(**action_input)
     except ValidationError as ve:
         raise BadActionRequest(ve.errors())
+
+
+try:
+    from flask.json.provider import DefaultJSONProvider
+except ImportError:
+    # Flask < 2.2: Use the deprecated JSON encoder interface.
+    json_provider_available = False
+    JsonProvider: Optional["DefaultJSONProvider"] = None
+else:
+    # Flask >= 2.2: Use the new JSON provider interface.
+    json_provider_available = True
+
+    class JsonProvider(DefaultJSONProvider):  # type: ignore[no-redef]
+        @staticmethod
+        def default(o: Any) -> Any:
+            return convert_to_json(o)
+
+
+def assign_json_provider(app_or_blueprint: flask.Flask | flask.Blueprint):
+    """Assign a JSON provider (or simply an encoder) to a Flask app or blueprint.
+
+    As of Flask 2.2.1, the `app.json_encoder` attribute is deprecated.
+    In its place, the new `app.json` attribute should be used instead.
+    This function will assign to the correct attribute
+    and avoid deprecation warnings.
+    """
+
+    if json_provider_available:
+        assert JsonProvider is not None
+        app_or_blueprint.json = JsonProvider(app_or_blueprint)
+    else:
+        app_or_blueprint.json_encoder = ActionProviderJsonEncoder
