@@ -1,5 +1,6 @@
 import inspect
 import json
+import flask
 from enum import Enum
 from functools import partial
 from typing import Any, Callable, Dict, Iterable, Set, Type
