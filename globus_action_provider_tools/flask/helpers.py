@@ -1,20 +1,20 @@
 import inspect
 import json
-import flaskgit 
+import flask
 from enum import Enum
 from functools import partial
-from typing import Any, Callable, Dict, Iterable, Set, Type
+from typing import Any, Callable, Dict, Iterable, Set, Type, Optional
 
 from flask import Request, current_app, jsonify
 from jsonschema.validators import Draft7Validator
 from pydantic import BaseModel, ValidationError
-from optional import Optoinal
 
 from globus_action_provider_tools.authentication import AuthState, TokenChecker
 from globus_action_provider_tools.data_types import (
     ActionProviderDescription,
     ActionRequest,
     ActionStatus,
+    ActionProviderJsonEncoder
 )
 from globus_action_provider_tools.errors import AuthenticationError
 from globus_action_provider_tools.flask.exceptions import (
